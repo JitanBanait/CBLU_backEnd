@@ -8,13 +8,13 @@ app.use(express.json());
 
 app.post("/saveTodo" , (req , res)=>{
 
-  fs.readFile("./dB/data.txt" ,"utf-8", (err , data)=>{
-
+  fs.readFile("./dB/data.txt", (err , data)=>{
+    let storeData;
+    
     if(err){
       console.log("err")
     }
     
-    let storeData;
     if(data.length == 0){
         console.log("sdfghjkl")
         storeData = [];
