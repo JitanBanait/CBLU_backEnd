@@ -3,6 +3,45 @@ let ul = document.getElementById("task-list");
 
 let taskId = 1;
 
+getTodo(function(data){
+if(data.length){
+    data.forEach((task)=>{
+        showTodo(task);
+    })
+}
+});
+
+function deleteTodo(task,callback){
+    let request = new XMLHttpRequest()
+
+    request.open("DELETE" , `/deleteTodo/${task.taskId}`)
+    
+    request.send()
+
+    request.onload = ()=>{
+       if( request.status == 200){
+             callback();
+       }
+    }
+
+}
+
+function getTodo(callback){
+    let request = new XMLHttpRequest()
+
+    request.open("GET" , "/getTodo")
+    
+    request.send()
+
+    request.onload = ()=>{
+       if( request.status == 200){
+       // console.log(request.responseText,"data");
+       callback(JSON.parse(request.responseText));
+       }
+    }
+
+}
+
 function saveTodo(data,callback){
 
     let request = new XMLHttpRequest()
@@ -18,16 +57,18 @@ function saveTodo(data,callback){
        }
     }
 
-
 }
-
-
 
 function showTodo(data){
     let div = document.createElement("div")
     div.innerText = data.task;
-
     ul.appendChild(div)
+    div.addEventListener("click" , (e)=>{
+        deleteTodo(data,function(){
+            ul.removeChild(e.target);
+        });
+    })
+
 }
  input.addEventListener("keydown" , async(e)=>{
    
@@ -42,8 +83,6 @@ function showTodo(data){
         }
 
         saveTodo(data , showTodo)
-
-
 
         taskId++;
         input.value = "";
