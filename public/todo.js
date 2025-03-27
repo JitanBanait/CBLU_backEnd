@@ -45,9 +45,12 @@ function getTodo(callback){
 function saveTodo(data,callback){
 
     let request = new XMLHttpRequest()
+    let time = sessionStorage.getItem("todoTime")
 
     request.open("POST" , "/saveTodo")
     request.setRequestHeader("Content-Type" , "application/json")
+    request.setRequestHeader("time" , "application/json")
+
 
     request.send(JSON.stringify(data))
 
