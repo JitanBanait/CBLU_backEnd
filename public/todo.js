@@ -42,29 +42,36 @@ function getTodo(callback){
 
 }
 
-function saveTodo(data,callback){
+function saveTodo(data,file,callback){
 
     let request = new XMLHttpRequest()
     let time = sessionStorage.getItem("todoTime")
 
     request.open("POST" , "/saveTodo")
-    request.setRequestHeader("Content-Type" , "application/json")
-    request.setRequestHeader("time" , "application/json")
+   // request.setRequestHeader("Content-Type" , "application/json")
+    //request.setRequestHeader("time" , "application/json")
 
-
-    request.send(JSON.stringify(data))
+    let formData = new FormData();
+    formData.append("todoPic", file);
+    formData.append("taskData", JSON.stringify(data));
+    request.send(formData)
 
     request.onload = ()=>{
        if( request.status == 200){
-        callback(data);
+        callback(request.responseText);
        }
     }
 
 }
 
 function showTodo(data){
+    console.log(data);
     let div = document.createElement("div")
+    let img = document.createElement("img")
+    img.setAttribute("src" , data.filename);
     div.innerText = data.task;
+    div.appendChild(img)
+
     ul.appendChild(div)
     div.addEventListener("click" , (e)=>{
         deleteTodo(data,function(){
@@ -77,6 +84,13 @@ function showTodo(data){
    
     if(e.key == "Enter"){
 
+        let fileInput = document.getElementById("todoPic");
+            let file = fileInput.files[0];
+
+            if (!file) {
+                alert("Please select a file!");
+                return;
+            }
         let data = {
             taskId : taskId,
             task : input.value,
@@ -85,7 +99,7 @@ function showTodo(data){
             
         }
 
-        saveTodo(data , showTodo)
+        saveTodo(data ,file, showTodo)
 
         taskId++;
         input.value = "";
