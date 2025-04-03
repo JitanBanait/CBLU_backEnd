@@ -1,5 +1,6 @@
  let input = document.getElementById("task-input");
 let ul = document.getElementById("task-list");
+let btn_log = document.getElementById("btn_log")
 
 let taskId = 1;
 
@@ -10,6 +11,11 @@ if(data.length){
     })
 }
 });
+
+
+btn_log.addEventListener("click",()=>{
+    
+})
 
 function deleteTodo(task,callback){
     let request = new XMLHttpRequest()
@@ -42,23 +48,24 @@ function getTodo(callback){
 
 }
 
-function saveTodo(data,file,callback){
+function saveTodo(data,files,callback){
 
     let request = new XMLHttpRequest()
-    let time = sessionStorage.getItem("todoTime")
+    
 
     request.open("POST" , "/saveTodo")
    // request.setRequestHeader("Content-Type" , "application/json")
     //request.setRequestHeader("time" , "application/json")
 
     let formData = new FormData();
-    formData.append("todoPic", file);
+
+   
     formData.append("taskData", JSON.stringify(data));
     request.send(formData)
 
     request.onload = ()=>{
        if( request.status == 200){
-        callback(request.responseText);
+        callback(JSON.parse(request.responseText));
        }
     }
 
@@ -85,7 +92,7 @@ function showTodo(data){
     if(e.key == "Enter"){
 
         let fileInput = document.getElementById("todoPic");
-            let file = fileInput.files[0];
+            let file = fileInput.files;
 
             if (!file) {
                 alert("Please select a file!");
