@@ -58,8 +58,9 @@ function saveTodo(data,files,callback){
     //request.setRequestHeader("time" , "application/json")
 
     let formData = new FormData();
+    console.log(files)
 
-   
+   formData.append("todoPics" , files[0])
     formData.append("taskData", JSON.stringify(data));
     request.send(formData)
 

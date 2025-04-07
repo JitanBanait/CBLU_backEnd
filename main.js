@@ -7,12 +7,14 @@ var session = require('express-session')
 let app = express();
 let port = 3500;
 
+app.set("view engine" , "ejs")
 
 app.use(express.json())
 app.use(session({
   secret: 'keyboard cat',
   resave: false,
   saveUninitialized: true,
+  cookie:{maxAge : 10000}
 }))
 
 
@@ -29,8 +31,8 @@ const upload = multer({
 
 app.get("/", (req,res)=>{
   if(req.session.isLogged){
-    res.sendFile(__dirname+"/Home/index.html")
-    
+   // res.sendFile(__dirname+"/Home/index.html")
+    res.render("index",{name : req.session.userName})
   }else{
     res.redirect("/login")
   }
@@ -47,14 +49,12 @@ if(req.session.isLogged){
 }).post((req , res)=>{
       console.log(req.body);
       // get data from dB and match
-      if(req.body.username == "ram"){
+     
           req.session.isLogged = true
+          req.session.userName = req.body.username
           res.redirect("/")
 
-      }else{
-
-        res.send("not found")
-      }
+      
 
 })
 
