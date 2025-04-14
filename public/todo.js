@@ -13,9 +13,6 @@ if(data.length){
 });
 
 
-btn_log.addEventListener("click",()=>{
-    
-})
 
 function deleteTodo(task,callback){
     let request = new XMLHttpRequest()

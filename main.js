@@ -1,4 +1,5 @@
 let express = require("express");
+const multer  = require('multer')
 let fs = require("fs")
 var session = require('express-session')
 
@@ -14,7 +15,7 @@ app.use(session({
   secret: 'keyboard cat',
   resave: false,
   saveUninitialized: true,
-  cookie:{maxAge : 10000}
+  
 }))
 
 
@@ -22,11 +23,29 @@ app.use(express.urlencoded({extended:true}))
 app.use(express.static("public"));
 app.use(express.static("uploads"));
 
+const storage = multer.diskStorage({
+  destination : function(req , file , cb){
+    if(req.path = "/saveTodo"){
+      
+      cb(null , "uploads/todos")
 
-const multer  = require('multer')
+    }else{
+      cb(null , "uploads/profile")
+    }
+
+
+  },
+
+  filename : function(req , file , cb){
+    cb(null , `todo+${file.originalname}`)
+
+  }
+
+})
+
 
 const upload = multer({
-  dest : "uploads/"
+ storage : storage
 })
 
 app.get("/", (req,res)=>{
@@ -167,6 +186,13 @@ app.post("/saveTodo" ,upload.single("todoPics"), (req , res)=>{
   
 
 
+})
+
+app.use((err , req , res , next)=>{
+    if(err){
+      res.JSON(err)
+    }
+    next()
 })
 
 app.listen(port , ()=>{
