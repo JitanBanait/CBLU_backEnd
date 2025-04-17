@@ -1,7 +1,18 @@
 let express = require("express");
 const multer  = require('multer')
+const {MongoClient} = require("mongodb");
 let fs = require("fs")
 var session = require('express-session')
+
+
+const url = "mongodb://localhost:27017"
+
+const dbName = "demoDb"
+
+const client = new MongoClient(url)
+let db;
+
+
 
 
 
@@ -28,7 +39,7 @@ const storage = multer.diskStorage({
     if(req.path = "/saveTodo"){
       
       cb(null , "uploads/todos")
-
+      
     }else{
       cb(null , "uploads/profile")
     }
@@ -146,43 +157,62 @@ app.get("/logout",(req,res)=>{
 
 
 
-app.post("/saveTodo" ,upload.single("todoPics"), (req , res)=>{
+app.post("/saveTodo" ,upload.single("todoPics"), async(req , res)=>{
 
-  console.log(req.body)
-  console.log(req.file)
+  // console.log(req.body)
+  // console.log(req.file)
 
-  
-  fs.readFile("./dB/data.txt", (err , data)=>{
-    let storeData;
+  try {
     let todo;
-    
-    if(err){
-      console.log("err")
-    }
-    
-    if(data.length == 0){
-      //  console.log("sdfghjkl")
-        storeData = [];
-      }else{
-        storeData = JSON.parse(data);
+   
+    todo = JSON.parse(req.body.taskData)
+    todo.filename = req.file.filename
+  // console.log(todo)
+ let resultO =  await db.collection("tasks").find().toArray();
+ console.log("before",resultO)
+ let result1O=  await db.collection("tasks").insertOne(todo);
+ console.log("on store",result1O)
+       let result2O =  await db.collection("tasks").find().toArray();
+       console.log("after",result2O)
 
-      }
+       res.json(todo);
+    
+  } catch (error) {
+      res.send("err");
+  }
 
-      todo = JSON.parse(req.body.taskData)
-      todo.filename = req.file.filename
+  // fs.readFile("./dB/data.txt", (err , data)=>{
+  //   let storeData;
+  //   let todo;
+    
+  //   if(err){
+  //     console.log("err")
+  //   }
+    
+  //   if(data.length == 0){
+  //     //  console.log("sdfghjkl")
+  //       storeData = [];
+  //     }else{
+  //       storeData = JSON.parse(data);
+
+  //     }
+
+  //     todo = JSON.parse(req.body.taskData)
+  //     todo.filename = req.file.filename
+
        
-      //console.log(todo)
-      storeData.push(todo)
+  //     //console.log(todo)
+  //     storeData.push(todo)
 
-      fs.writeFile("./dB/data.txt" , JSON.stringify(storeData) , (err)=>{
-        if(err){
-          res.end("err")
-        }else{
-          res.json(todo)
-        }
-      })
+  //     fs.writeFile("./dB/data.txt" , JSON.stringify(storeData) , (err)=>{
+  //       if(err){
+  //         res.end("err")
+  //       }else{
+  //         res.json(todo)
+  //       }
+  //     })
 
-  })
+  // })
   
 
 
@@ -193,8 +223,23 @@ app.use((err , req , res , next)=>{
       res.JSON(err)
     }
     next()
-})
+  })
+  
+  
+  async function serverStart(){
+    
+    try {
+      await client.connect();
+      db = client.db(dbName)
+      console.log("connect db")
+    } catch (error) {
+      console.log(error,"database")
+    }
+    app.listen(port, () => {
+      console.log(`Server running on http://localhost:${port}`);
+    });
+  
+  }
 
-app.listen(port , ()=>{
-    console.log(`server is running on port = ${port}`);
-})
+
+  serverStart()
