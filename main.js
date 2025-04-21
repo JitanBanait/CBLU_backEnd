@@ -95,30 +95,34 @@ app.route("/signup").get((req ,res)=>{
 })
 
 
-app.delete("/deleteTodo/:id",(req,res)=>{
-  let id = req.params.id;
-  fs.readFile("./dB/data.txt", (err , data)=>{
-    let storeData; 
-    if(err){
-      console.log("err")
-    } 
-    if(data.length){
-        storeData = JSON.parse(data);
+app.delete("/deleteTodo/:id",async(req,res)=>{
+  let id =parseInt( req.params.id);
+  console.log(id);
+  await db.collection("tasks").deleteOne({taskId : id})
+  console.log(  await db.collection("tasks").deleteOne({taskId : id}))
+  res.end()
+  // fs.readFile("./dB/data.txt", (err , data)=>{
+  //   let storeData; 
+  //   if(err){
+  //     console.log("err")
+  //   } 
+  //   if(data.length){
+  //       storeData = JSON.parse(data);
 
-      let filterData = storeData.filter((task)=>{
-          return task.taskId != id
-        })
-        fs.writeFile("./dB/data.txt" , JSON.stringify(filterData) , (err)=>{
-          if(err){
-            res.end("err")
-          }else{
-            res.end()
-          }
-        })
-      }
+  //     let filterData = storeData.filter((task)=>{
+  //         return task.taskId != id
+  //       })
+  //       fs.writeFile("./dB/data.txt" , JSON.stringify(filterData) , (err)=>{
+  //         if(err){
+  //           res.end("err")
+  //         }else{
+  //           res.end()
+  //         }
+  //       })
+  //     }
  
      
-  })
+  // })
 
 
 })
@@ -168,12 +172,10 @@ app.post("/saveTodo" ,upload.single("todoPics"), async(req , res)=>{
     todo = JSON.parse(req.body.taskData)
     todo.filename = req.file.filename
   // console.log(todo)
- let resultO =  await db.collection("tasks").find().toArray();
- console.log("before",resultO)
+ 
  let result1O=  await db.collection("tasks").insertOne(todo);
  console.log("on store",result1O)
-       let result2O =  await db.collection("tasks").find().toArray();
-       console.log("after",result2O)
+      console.log(await db.collection("tasks").find())
 
        res.json(todo);
     
